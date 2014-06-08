@@ -346,8 +346,10 @@ public class Tokenizer implements TokenStream {
 			
 			num.append(beforePoint);
 			
-			if(afterPoint.length() > 0) 
+			if(afterPoint.length() > 0) {
+				num.append('.');
 				num.append(afterPoint);
+			}
 			
 			if(power.length() > 0) {
 				num.append('e');
