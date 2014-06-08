@@ -1,11 +1,11 @@
 package com.sankar.json;
 
 @SuppressWarnings("serial")
-public class UnexpectedTokenException extends RuntimeException {
+public class ParsingException extends RuntimeException {
 	
 	private Token found;
 	
-	public UnexpectedTokenException(Token found) {
+	public ParsingException(Token found) {
 		this.found = found;
 	}
 	

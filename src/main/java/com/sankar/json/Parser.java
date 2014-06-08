@@ -13,19 +13,17 @@ import com.sankar.json.ast.JValue;
 
 public class Parser {
 	
-	private TokenSource tokenSource;
+	private TokenStream tokenStream;
 	
 	private Token previous, current, peeked;
 	
-	public Parser(TokenSource tokenSource) {
-		this.tokenSource = tokenSource;
+	public Parser(TokenStream tokenStream) {
+		this.tokenStream = tokenStream;
 	}
 	
 	public JValue parse() {
 		JValue result = expectValue();
-		
 		assume(TokenType.EOF);
-		
 		return result;
 	}
 	
@@ -33,8 +31,7 @@ public class Parser {
 		return new Parser(
 			new Tokenizer(
 				new StringReader(input)
-			)
-		).parse();
+		)).parse();
 	}
 	
 	private JValue expectValue() {
@@ -82,7 +79,7 @@ public class Parser {
 			assume(TokenType.COLON);
 			JValue value = expectValue();
 			
-			object.addProperty(key, value);
+			object.put(key.value(), value);
 			
 			if (peek().type() == TokenType.OBJECT_END) {
 				break;
@@ -124,7 +121,7 @@ public class Parser {
 	}
 	
 	private <T> T error() {
-		throw new UnexpectedTokenException(current());
+		throw new ParsingException(current());
 	}
 	
 	private Token current() {
@@ -137,7 +134,7 @@ public class Parser {
 			current = peeked;
 			peeked = null;
 		} else {
-			current = tokenSource.nextToken();
+			current = tokenStream.nextToken();
 		}
 			
 		return current;
@@ -151,7 +148,7 @@ public class Parser {
 		if (peeked != null)
 			return peeked;
 		else
-			return (peeked = tokenSource.nextToken());
+			return (peeked = tokenStream.nextToken());
 	}
 	
 	private void pushBack() {

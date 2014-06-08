@@ -2,18 +2,50 @@ package com.sankar.json.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+
+import com.sankar.json.JValueVisitor;
 
 public class JArray extends JValue {
 	
 	private List<JValue> values = new ArrayList<JValue>();
 	
 	public void add(JValue value) {
-		values.add(value);
+		values.add(value == null ? JNull.INSTANCE : value);
+	}
+	
+	public int size() {
+		return values.size();
+	}
+	
+	public JValue remove(int indx) {
+		return values.remove(indx);
+	}
+	
+	public JValue get(int indx) {
+		return values.get(indx);
 	}
 	
 	public List<JValue> values() {
 		return Collections.unmodifiableList(values);
+	}
+	
+	@Override
+	public JArray getAsArray() {
+		return this;
+	}
+	
+	@Override
+	public void accept(JValueVisitor visitor) {
+		visitor.visitArrayStart(size());
+		
+		Iterator<JValue>  iter = values.iterator();
+		while(iter.hasNext()) {
+			visitor.visitArrayElement(iter.next());
+		}
+		
+		visitor.visitArrayEnd();
 	}
 	
 	@Override

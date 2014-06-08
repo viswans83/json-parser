@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Tokenizer implements TokenSource {
+public class Tokenizer implements TokenStream {
 	
 	private static final String ERR_UNEXPECTED_CLOSE = "Unexpected close error";
 
@@ -17,8 +17,6 @@ public class Tokenizer implements TokenSource {
 	private static final String ERR_UNEXPECTED_UNREAD = "Unexpected unread error";
 
 	private static final String ERR_UNEXPECTED_SYMBOL = "Unexpected symbol";
-	
-	private static final String ERR_ASSERTION = "Assertion error";
 	
 	private PushbackReader reader;
 	
@@ -33,30 +31,32 @@ public class Tokenizer implements TokenSource {
 		Tokenizer tokenizer = new Tokenizer(reader);
 		
 		Token tok;
-		while((tok = tokenizer.nextToken()) != Token.TOK_EOF) {
+		while((tok = tokenizer.nextToken()) != Token.EOF) {
 			result.add(tok);
 		}
+		result.add(tok);
 		
 		return Collections.unmodifiableList(result);
 	}
 	
+	@Override
 	public Token nextToken() {
 		consumeWhiteSpace();
 		
 		int ch = next();
 		
 		switch(ch) {
-		case -1 : return Token.TOK_EOF;
-		case '[': return Token.TOK_ARRAY_START;
-		case ']': return Token.TOK_ARRAY_END;
-		case '{': return Token.TOK_OBJECT_START;
-		case '}': return Token.TOK_OBJECT_END;
-		case ',': return Token.TOK_COMMA;
-		case ':': return Token.TOK_COLON;
+		case -1 : return Token.EOF;
+		case '[': return Token.ARRAY_START;
+		case ']': return Token.ARRAY_END;
+		case '{': return Token.OBJECT_START;
+		case '}': return Token.OBJECT_END;
+		case ',': return Token.COMMA;
+		case ':': return Token.COLON;
 		case '"': pushBack(ch); return expectString();
-		case 't': pushBack(ch); return expectToken("true", Token.TOK_TRUE);
-		case 'f': pushBack(ch); return expectToken("false", Token.TOK_FALSE);
-		case 'n': pushBack(ch); return expectToken("null", Token.TOK_NULL);
+		case 't': pushBack(ch); return expectToken("true", Token.TRUE);
+		case 'f': pushBack(ch); return expectToken("false", Token.FALSE);
+		case 'n': pushBack(ch); return expectToken("null", Token.NULL);
 		case '-':
 		case '0':
 		case '1':
@@ -198,10 +198,11 @@ public class Tokenizer implements TokenSource {
 		int read = next();
 		
 		if (read != value) { 
-			error(ERR_ASSERTION);
+			error(ERR_UNEXPECTED_SYMBOL);
 		}
 	}
 	
+	@Override
 	public void close() {
 		try {
 			reader.close();
@@ -338,21 +339,25 @@ public class Tokenizer implements TokenSource {
 		}
 		
 		private Double constructNumber() {
-			double value = Integer.valueOf(beforePoint.toString());
+			StringBuilder num = new StringBuilder();
 			
-			String ap = afterPoint.toString(); 
-			if (ap.length() > 0)
-				value = value + (Integer.valueOf(ap) / Math.pow(10, ap.length()));
+			if(negative) 
+				num.append('-');
 			
-			String pow = power.toString();
-			if (pow.length() > 0) {
-				if (negativePower)
-					value = value / Math.pow(10, Integer.valueOf(pow));
-				else
-					value = value * Math.pow(10, Integer.valueOf(pow));
+			num.append(beforePoint);
+			
+			if(afterPoint.length() > 0) 
+				num.append(afterPoint);
+			
+			if(power.length() > 0) {
+				num.append('e');
+				if (negativePower) { 
+					num.append('-');
+				}
+				num.append(power);
 			}
 			
-			return value * (negative ? -1 : 1);
+			return new Double(num.toString());
 		}
 	}
 }

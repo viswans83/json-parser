@@ -1,5 +1,6 @@
 package com.sankar.json.ast;
 
+import com.sankar.json.JValueVisitor;
 
 public abstract class JValue {
 	
@@ -30,24 +31,26 @@ public abstract class JValue {
 	}
 	
 	public JObject getAsObject() {
-		return (JObject)this;
+		throw new UnsupportedOperationException();
 	}
 	
 	public JArray getAsArray() {
-		return (JArray)this;
+		throw new UnsupportedOperationException();
 	}
 	
 	public JBoolean getAsBoolean() {
-		return (JBoolean)this;
+		throw new UnsupportedOperationException();
 	}
 	
 	public JNumber getAsNumber() {
-		return (JNumber)this;
+		throw new UnsupportedOperationException();
 	}
 	
 	public JString getAsString() {
-		return (JString)this;
+		throw new UnsupportedOperationException();
 	}
+	
+	public abstract void accept(JValueVisitor visitor);
 	
 	public abstract String toJson();
 	

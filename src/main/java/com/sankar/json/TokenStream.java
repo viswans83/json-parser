@@ -1,7 +1,7 @@
 package com.sankar.json;
 
 
-public interface TokenSource {
+public interface TokenStream {
 	Token nextToken();
 	void close();
 }

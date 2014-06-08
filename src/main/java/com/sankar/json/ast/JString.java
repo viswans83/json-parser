@@ -1,5 +1,7 @@
 package com.sankar.json.ast;
 
+import com.sankar.json.JValueVisitor;
+
 public class JString extends JValue {
 	
 	private String value;
@@ -10,6 +12,16 @@ public class JString extends JValue {
 	
 	public String value() {
 		return value;
+	}
+	
+	@Override
+	public JString getAsString() {
+		return this;
+	}
+
+	@Override
+	public void accept(JValueVisitor visitor) {
+		visitor.visitPrimitive(this);
 	}
 	
 	@Override
@@ -44,6 +56,17 @@ public class JString extends JValue {
 		sb.append("\"");
 		
 		return sb.toString();
+	}
+	
+	@Override
+	public int hashCode() {
+		return value.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof JString)) return false;
+		return value.equals(((JString)other).value);
 	}
 	
 }
