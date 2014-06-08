@@ -38,7 +38,7 @@ public class JArray extends JValue {
 	
 	@Override
 	public void accept(JValueVisitor visitor) {
-		visitor.visitArrayStart(size());
+		visitor.visitArrayStart(size(), hasOnlyPrimitives());
 		
 		Iterator<JValue>  iter = values.iterator();
 		while(iter.hasNext()) {
@@ -46,6 +46,15 @@ public class JArray extends JValue {
 		}
 		
 		visitor.visitArrayEnd();
+	}
+	
+	private boolean hasOnlyPrimitives() {
+		boolean result = true;
+		for(JValue item : values)
+			if(item.isArray() || item.isObject())
+				result = false;
+		
+		return result;
 	}
 	
 	@Override

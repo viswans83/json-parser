@@ -8,7 +8,7 @@ public interface JValueVisitor {
 	void visitObjectStart(int propertyCount);
 	void visitObjectProperty(JString key, JValue value);
 	void visitObjectEnd();
-	void visitArrayStart(int elementCount);
+	void visitArrayStart(int elementCount, boolean hasOnlyPrimitives);
 	void visitArrayElement(JValue value);
 	void visitArrayEnd();
 }

@@ -28,7 +28,7 @@ public class PrettyPrinter implements JValueVisitor {
 	@Override
 	public void visitObjectStart(int propertyCount) {
 		out.append('{');
-		enterNesting(Nesting.OBJECT, propertyCount);
+		enterNesting(propertyCount,false);
 		nextLine();
 	}
 	
@@ -48,9 +48,9 @@ public class PrettyPrinter implements JValueVisitor {
 	}
 	
 	@Override
-	public void visitArrayStart(int elementCount) {
+	public void visitArrayStart(int elementCount, boolean hasOnlyPrimitives) {
 		out.append('[');
-		enterNesting(Nesting.ARRAY, elementCount);
+		enterNesting(elementCount,hasOnlyPrimitives);
 		nextLine();
 	}
 	
@@ -76,11 +76,13 @@ public class PrettyPrinter implements JValueVisitor {
 			out.append(',');
 		}
 		
-		out.append('\n');
-		
-		int indentLevel = currentNesting().isExpectingMore() ? indentLevel() : indentLevel() - 1;
-		while((indentLevel--) > 0) {
-			out.append("  ");
+		if (!currentNesting().isPrintInSingleLine()) {
+			out.append('\n');
+			
+			int indentLevel = currentNesting().isExpectingMore() ? indentLevel() : indentLevel() - 1;
+			while((indentLevel--) > 0) {
+				out.append("  ");
+			}
 		}
 	}
 	
@@ -96,8 +98,8 @@ public class PrettyPrinter implements JValueVisitor {
 		return currentNesting() != null;
 	}
 	
-	private void enterNesting(int type, int size) {
-		nestingLevel.push(new Nesting(type, size));
+	private void enterNesting(int size, boolean singleLine) {
+		nestingLevel.push(new Nesting(size, singleLine));
 	}
 	
 	private void leaveNesting() {
@@ -106,29 +108,19 @@ public class PrettyPrinter implements JValueVisitor {
 	
 	private class Nesting {
 		
-		static final int ARRAY = 0;
-		static final int OBJECT = 0;
-		
-		int nestingType;
 		int totalEntries;
 		int remainingEntries;
 		
-		Nesting(int nestingType, int remainingEntries) {
-			this.nestingType = nestingType;
+		boolean showInSingleLine;
+		
+		Nesting(int remainingEntries, boolean showInsingleLine) {
 			this.totalEntries = remainingEntries;
 			this.remainingEntries = remainingEntries;
+			this.showInSingleLine = showInsingleLine;
 		}
 		
 		boolean isEmptyStructure() {
 			return totalEntries == 0;
-		}
-		
-		boolean isArray() {
-			return nestingType == ARRAY;
-		}
-		
-		boolean isObject() {
-			return nestingType == OBJECT;
 		}
 		
 		boolean isJustBegun() {
@@ -137,6 +129,10 @@ public class PrettyPrinter implements JValueVisitor {
 		
 		boolean isExpectingMore() {
 			return remainingEntries != 0;
+		}
+		
+		boolean isPrintInSingleLine() {
+			return showInSingleLine;
 		}
 		
 		void entryDown() {

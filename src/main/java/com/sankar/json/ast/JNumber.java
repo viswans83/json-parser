@@ -26,7 +26,10 @@ public class JNumber extends JValue {
 	
 	@Override
 	public String toJson() {
-		return value.toString();
+		if (value % 1 != 0)
+			return value.toString();
+		else
+			return ((Integer)value.intValue()).toString();
 	}
 	
 	@Override
