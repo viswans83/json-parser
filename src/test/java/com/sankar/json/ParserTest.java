@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.sankar.json.ast.JFalse;
+import com.sankar.json.ast.JNull;
+import com.sankar.json.ast.JObject;
 import com.sankar.json.ast.JTrue;
 import com.sankar.json.ast.JValue;
 
@@ -68,6 +70,28 @@ public class ParserTest {
 		JValue result = Parser.parse("[]");
 		assertTrue(result.isArray());
 		assertTrue(result.getAsArray().size() == 0);
+	}
+	
+	@Test
+	public void testParseComplexObject() {
+		JValue result = Parser.parse("{\"a\":10, \"b\":[true,false], \"c\":{\"c1\":null}}");
+		assertTrue(result.isObject());
+		
+		JObject obj = result.getAsObject();
+		assertEquals(3,obj.propertyCount());
+		
+		JValue a = obj.get("a");
+		assertTrue(a.isNumber());
+		assertEquals(a.getAsNumber().value(),(Double)10.0);
+		
+		JValue b = obj.get("b");
+		assertTrue(b.isArray());
+		assertEquals(JTrue.INSTANCE, b.getAsArray().get(0));
+		assertEquals(JFalse.INSTANCE, b.getAsArray().get(1));
+		
+		JValue c = obj.get("c");
+		assertTrue(c.isObject());
+		assertEquals(c.getAsObject().get("c1"),JNull.INSTANCE);
 	}
 	
 }
